@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qui suis-je ? - Le Jeu</title>
+  <style>
+    /* =========================================================
+       1. VARIABLES GLOBALES & SYSTÈMES DES 3 INTERFACES
+       ========================================================= */
+    :root {
+      --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --font-title: 'Segoe UI', system-ui, sans-serif;
+      --bg-color: #030804;
+      --panel-bg: rgba(5, 20, 8, 0.96);
+      --text-color: #00ff66;
+      --accent-color: #39ff14;
+      --border-color: #00aa44;
+      --btn-bg: #06220b;
+      --btn-hover: #00ff66;
+      --btn-text: #00ff66;
+      --correct-bg: #00ff66;
+      --wrong-bg: #ff2a2a;
+      --border-radius: 4px;
+      --letter-spacing: 0.06em;
+      --line-height: 1.6;
+      --glow-effect: 0 0 16px rgba(0, 255, 102, 0.4);
+      --wrong-text: #000000;
+      --ok-text: #00ff66;
+      --bad-text: #ff6a6a;
+    }
+
+    /* Focus clavier visible dans tous les thèmes */
+    button:focus-visible {
+      outline: 3px solid #ffffff;
+      outline-offset: 3px;
+      box-shadow: 0 0 0 6px #000000;
+    }
+
+    /* THÈME 1 : TERMINAL 80s */
+    body.theme-80s {
+      --font-main: 'Courier New', Courier, 'Lucida Console', monospace;
+      --font-title: 'Courier New', Courier, monospace;
+      --bg-color: #020702;
+      --panel-bg: #041407;
+      --text-color: #00ff66;
+      --accent-color: #33ff77;
+      --border-color: #00aa44;
+      --btn-bg: #05240c;
+      --btn-hover: #00ff66;
+      --btn-text: #00ff66;
+      --correct-bg: #00ff66;
+      --wrong-bg: #ff2a2a;
+      --border-radius: 3px;
+      --letter-spacing: 0.08em;
+      --line-height: 1.65;
+      --glow-effect: 0 0 18px rgba(0, 255, 102, 0.4);
+      background-image: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.28) 0px,
+        rgba(0, 0, 0, 0.28) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+    }
+
+    body.theme-80s .option-btn {
+      color: #00ff66;
+      border-color: #00aa44;
+      text-shadow: 0 0 5px rgba(0, 255, 102, 0.6);
+    }
+    body.theme-80s .option-btn:hover:not(:disabled) {
+      background: #00ff66;
+      color: #020702;
+      text-shadow: none;
+      font-weight: bold;
+    }
+    body.theme-80s .action-btn {
+      background: #00ff66;
+      color: #020702;
+      box-shadow: 0 0 14px rgba(0, 255, 102, 0.7);
+    }
+
+    /* CURSEUR BLOC BLANC FAISANT AVANCER LES LETTRES */
+    .terminal-cursor {
+      display: inline-block;
+      width: 0.65em;
+      height: 1.15em;
+      background-color: #ffffff;
+      vertical-align: -0.18em;
+      margin-left: 2px;
+      box-shadow: 0 0 6px #ffffff;
+      animation: blinkCursor 0.7s infinite steps(2, start);
+    }
+
+    @keyframes blinkCursor {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* THÈME 2 : LICORNE (PASTEL & FÉERIQUE) */
+    body.theme-licorne {
+      --font-main: 'Quicksand', 'Trebuchet MS', 'Segoe UI', sans-serif;
+      --font-title: 'Quicksand', 'Trebuchet MS', 'Segoe UI', sans-serif;
+      --bg-color: #fdf6fa;
+      --panel-bg: #ffffff;
+      --text-color: #55445b;
+      --accent-color: #ff6584;
+      --border-color: #ffbbf0;
+      --btn-bg: #faeef8;
+      --btn-hover: #ffc6ff;
+      --btn-text: #4d3356;
+      --correct-bg: #7bf1a8;
+      --wrong-bg: #ff6b8b;
+      --wrong-text: #3a0d1c;
+      --ok-text: #1b7a45;
+      --bad-text: #b3213f;
+      --border-radius: 24px;
+      --letter-spacing: 0.02em;
+      --line-height: 1.6;
+      --glow-effect: 0 10px 28px rgba(255, 198, 255, 0.75);
+      background-image: none;
+    }
+
+    /* THÈME 3 : AMÉNAGEMENTS RAISONNABLES DYS (LISIBILITÉ MAXIMALE) */
+    body.theme-dys {
+      --font-main: Arial, Helvetica, sans-serif;
+      --font-title: Arial, Helvetica, sans-serif;
+      --bg-color: #f6f3e7; /* Crème doux anti-éblouissement */
+      --panel-bg: #ffffff;
+      --text-color: #1a1a1a;
+      --accent-color: #00529b;
+      --border-color: #2b3d52;
+      --btn-bg: #edf2f7;
+      --btn-hover: #d3e2f2;
+      --btn-text: #000000;
+      --correct-bg: #00a859;
+      --wrong-bg: #d92525;
+      --wrong-text: #ffffff;
+      --ok-text: #00692f;
+      --bad-text: #b01c1c;
+      --border-radius: 12px;
+      --letter-spacing: 0.08em; /* Espacement inter-lettres pour faciliter le déchiffrage */
+      --line-height: 1.8;      /* Interligne ample */
+      --glow-effect: 0 2px 8px rgba(0, 0, 0, 0.12);
+      background-image: none;
+    }
+
+    /* =========================================================
+       2. MISE EN PAGE COMMUNE
+       ========================================================= */
+    * {
+      box-sizing: border-box;
+      transition: background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease;
+    }
+
+    body {
+      margin: 0;
+      padding: 18px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: var(--font-main);
+      letter-spacing: var(--letter-spacing);
+      line-height: var(--line-height);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 700px;
+      background-color: var(--panel-bg);
+      border: 3px solid var(--border-color);
+      border-radius: var(--border-radius);
+      box-shadow: var(--glow-effect);
+      padding: 26px;
+      position: relative;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 2px dashed var(--border-color);
+      margin-bottom: 20px;
+    }
+
+    .mode-badge {
+      font-size: 0.9rem;
+      font-weight: bold;
+      padding: 6px 14px;
+      border-radius: var(--border-radius);
+      background: var(--btn-bg);
+      border: 1px solid var(--border-color);
+      color: var(--accent-color);
+    }
+
+    .score-badge {
+      font-size: 0.95rem;
+      font-weight: bold;
+      padding: 6px 14px;
+      border-radius: var(--border-radius);
+      background: var(--btn-bg);
+      border: 1px solid var(--border-color);
+    }
+
+    .screen {
+      display: none;
+      text-align: left;
+    }
+    .screen.active {
+      display: block;
+    }
+
+    h1, h2 {
+      font-family: var(--font-title);
+      margin-top: 0;
+      color: var(--accent-color);
+    }
+
+    /* SÉLECTEUR DE THÈME AVANT-JEU (OBLIGATOIRE SUR L'ACCUEIL) */
+    .mode-select-box {
+      margin: 22px 0;
+      padding: 16px;
+      border: 2px solid var(--border-color);
+      border-radius: var(--border-radius);
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    .mode-cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    @media (min-width: 540px) {
+      .mode-cards {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+    }
+
+    .mode-card-btn {
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: 2px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 14px 10px;
+      cursor: pointer;
+      text-align: center;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: bold;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mode-card-btn:hover {
+      filter: brightness(1.15);
+    }
+
+    .mode-card-btn.selected {
+      background: var(--accent-color) !important;
+      color: #000000 !important;
+      border-color: #ffffff !important;
+      box-shadow: 0 0 12px var(--accent-color);
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 10px;
+      background: var(--btn-bg);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 18px;
+      border: 1px solid var(--border-color);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--accent-color);
+      transition: width 0.3s ease;
+    }
+
+    .question-box {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 18px 0;
+      min-height: 3.4em;
+      text-align: left;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .option-btn {
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: 2px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 14px 18px;
+      font-size: 1rem;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: left;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+    }
+
+    .option-btn.correct {
+      background-color: var(--correct-bg) !important;
+      color: #000000 !important;
+      font-weight: bold;
+      border-color: #ffffff;
+    }
+
+    .option-btn.wrong {
+      background-color: var(--wrong-bg) !important;
+      color: var(--wrong-text) !important;
+      border-color: #ffffff;
+    }
+
+    .feedback-box {
+      min-height: 4.8em; /* place réservée pour l'anecdote : le cadre ne bouge pas */
+      font-size: 1.02rem;
+      font-weight: bold;
+      margin: 12px 0 16px 0;
+    }
+
+    .action-btn {
+      background: var(--accent-color);
+      color: #000000;
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 14px 28px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-block;
+    }
+
+    .action-btn:hover {
+      filter: brightness(1.15);
+    }
+
+    /* =========================================================
+       3. INTÉGRATION DIRECTE DU PORTRAIT (FIN DE PARTIE)
+       ========================================================= */
+    .victory-container {
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    .photo-display-card {
+      width: min(240px, 100%);
+      aspect-ratio: 4 / 5;
+      margin: 18px auto 12px auto;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      border: 4px solid var(--accent-color);
+      box-shadow: var(--glow-effect);
+      background: #111;
+      position: relative;
+    }
+
+    .photo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 30%; /* garde le visage bien cadré */
+      display: block;
+    }
+
+    /* Lignes de balayage par-dessus la photo (thème 80s seulement) */
+    body.theme-80s .photo-display-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.3) 0 1px, transparent 1px 3px);
+    }
+
+    /* Rendu visuel propre à chaque univers */
+    body.theme-80s .photo-display-card {
+      border-color: #00ff66;
+      box-shadow: 0 0 20px rgba(0, 255, 102, 0.7);
+    }
+    body.theme-80s .photo-img {
+      filter: grayscale(100%) brightness(1.1) contrast(1.25) sepia(100%) hue-rotate(85deg) saturate(3.5);
+    }
+
+    body.theme-licorne .photo-display-card {
+      border-radius: 32px;
+      border-color: #ff85a1;
+      box-shadow: 0 10px 30px rgba(255, 133, 161, 0.5);
+    }
+    body.theme-licorne .photo-img {
+      filter: contrast(1.04) saturate(1.15) brightness(1.04);
+    }
+
+    body.theme-dys .photo-display-card {
+      border-radius: 14px;
+      border: 4px solid #00529b;
+      box-shadow: none;
+    }
+    body.theme-dys .photo-img {
+      filter: none;
+    }
+
+    /* PHOTO FLOUE SOUS LE SEUIL */
+    .photo-display-card.locked .photo-img {
+      filter: blur(20px) grayscale(0.4) !important;
+      transform: scale(1.15); /* cache les bords du flou */
+    }
+
+    /* APPARITION DE LA PHOTO */
+    @keyframes scanReveal {
+      from { clip-path: inset(0 0 100% 0); }
+      to   { clip-path: inset(0 0 0 0); }
+    }
+    @keyframes scanHead {
+      from { top: 0; opacity: 1; }
+      90%  { opacity: 1; }
+      to   { top: calc(100% - 4px); opacity: 0; }
+    }
+    @keyframes softFade {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* 80s : la photo se dessine ligne par ligne, comme un terminal */
+    body.theme-80s .photo-display-card.reveal .photo-img {
+      animation: scanReveal 4.5s steps(45, end) both;
+    }
+    body.theme-80s .photo-display-card.reveal::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 4px;
+      z-index: 2;
+      background: #b8ffd0;
+      box-shadow: 0 0 12px 3px rgba(0, 255, 102, 0.9);
+      animation: scanHead 4.5s steps(45, end) both;
+    }
+
+    /* Licorne et DYS : fondu doux */
+    body.theme-licorne .photo-display-card.reveal .photo-img,
+    body.theme-dys .photo-display-card.reveal .photo-img {
+      animation: softFade 1.8s ease-out both;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .photo-display-card.reveal .photo-img,
+      .photo-display-card.reveal::before { animation: none !important; }
+      body.theme-80s .photo-display-card.reveal::before { display: none; }
+      * { transition: none !important; }
+      .terminal-cursor { animation: none; }
+    }
+
+    .photo-caption {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: var(--accent-color);
+      margin-top: 6px;
+      margin-bottom: 18px;
+    }
+
+  </style>
+</head>
+<body class="theme-80s">
+
+  <div class="app-container">
+    <!-- BARRE SUPÉRIEURE INFORMATIVE -->
+    <header class="header-bar">
+      <div class="mode-badge" id="current-mode-label">Mode : 💻 Terminal 80s</div>
+      <div class="score-badge" id="score-display">Score: 0 / 5</div>
+    </header>
+
+    <!-- ÉCRAN 1 : ACCUEIL & CHOIX OBLIGATOIRE DU MODE AVANT DE JOUER -->
+    <section id="screen-intro" class="screen active">
+      <h1 id="intro-title">SYS_INIT : Me connaissez-vous vraiment ?</h1>
+      <p id="intro-desc">Bienvenue ! Voici <strong>5 questions tirées au hasard</strong> sur moi : mes goûts, mon métier et mes passions. Trouvez au moins <strong>3 bonnes réponses</strong> pour dévoiler ma photo. Rien d'autre à gagner : c'est juste une façon de faire connaissance avant la formation, et vous pouvez rejouer autant que vous voulez.</p>
+      
+      <div class="mode-select-box">
+        <label style="font-weight: bold; font-size: 1rem; display: block; margin-bottom: 6px;">
+          ⚡ ÉTAPE 1 : Choisissez votre interface avant de débuter :
+        </label>
+        <div class="mode-cards" role="group" aria-label="Choix de l'interface">
+          <button type="button" class="mode-card-btn selected" id="btn-mode-80s" onclick="preselectTheme('theme-80s', '💻 Terminal 80s', this)" aria-pressed="true">
+            <span style="font-size: 1.4rem;">💻</span>
+            <span>Terminal 80s</span>
+            <small style="font-size: 0.75rem; opacity: 0.85;">Phosphore vert & curseur</small>
+          </button>
+          
+          <button type="button" class="mode-card-btn" id="btn-mode-licorne" onclick="preselectTheme('theme-licorne', '🦄 Licorne Féerique', this)" aria-pressed="false">
+            <span style="font-size: 1.4rem;">🦄</span>
+            <span>Licorne</span>
+            <small style="font-size: 0.75rem; opacity: 0.85;">Pastel doux & arrondi</small>
+          </button>
+          
+          <button type="button" class="mode-card-btn" id="btn-mode-dys" onclick="preselectTheme('theme-dys', '👓 Mode DYS', this)" aria-pressed="false">
+            <span style="font-size: 1.4rem;">👓</span>
+            <span>Mode DYS</span>
+            <small style="font-size: 0.75rem; opacity: 0.85;">Lisibilité & confort</small>
+          </button>
+        </div>
+      </div>
+
+      <button class="action-btn" onclick="startGame()">Lancer la partie avec ce mode 🚀</button>
+    </section>
+
+    <!-- ÉCRAN 2 : QUESTIONNAIRE ACTIF -->
+    <section id="screen-quiz" class="screen">
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div id="question-number" aria-live="polite" style="font-size: 0.9rem; opacity: 0.85;">Question 1 / 5</div>
+      
+      <!-- CONTENEUR MACHINE À ÉCRIRE AVEC CURSEUR BLOC BLANC -->
+      <div class="question-box">
+        <span id="question-text" aria-live="off"></span><span id="cursor" class="terminal-cursor"></span>
+      </div>
+      
+      <div class="options-grid" id="options-container"></div>
+
+      <div class="feedback-box" id="feedback-text" role="status" aria-live="polite"></div>
+      <button class="action-btn" id="next-btn" style="visibility: hidden;" onclick="nextQuestion()">Question suivante ➔</button>
+    </section>
+
+    <!-- ÉCRAN 3 : BILAN & PHOTO DIRECTE -->
+    <section id="screen-end" class="screen">
+      <div class="victory-container">
+        <h2 id="final-title">FIN DE TRANSMISSION</h2>
+        <p id="final-score-text" style="font-size: 1.1rem;"></p>
+        
+        <div id="avatar-container" style="display: none;">
+          <p id="avatar-intro" style="font-weight: bold; color: var(--accent-color); font-size: 1.1rem;"></p>
+          
+          <!-- CONTENEUR PHOTO INTÉGRÉ DIRECTEMENT SANS IMPORTATION MANUELLE -->
+          <div class="photo-display-card">
+            <img id="profile-photo-img" class="photo-img" src="portrait.png" alt="Portrait d'Angelo : un homme brun aux cheveux courts et à la barbe de trois jours, en pull gris clair, devant un mur clair." onerror="this.closest('.photo-display-card').style.display='none'">
+          </div>
+          
+          <div class="photo-caption" id="photo-tag" aria-live="polite"></div>
+        </div>
+
+        <button class="action-btn" onclick="returnToIntro()">Changer de mode / Rejouer 🔄</button>
+      </div>
+    </section>
+    <footer style="margin-top: 1.5rem; font-size: 0.85rem; opacity: 0.8; text-align: center;">Conçu par Angelo, codé par l'IA.</footer>
+  </div>
+
+  <script>
+    /* =========================================================
+       4. BASE DE CONNAISSANCES AFFINÉE AVEC VOS ANECDOTES RÉELLES
+       ========================================================= */
+    const questionBank = [
+      /* GOÛTS ET CULTURE */
+      {
+        question: "Dans The Big Bang Theory, quel personnage est mon chouchou ?",
+        options: ["Sheldon Cooper", "Leonard Hofstadter", "Howard Wolowitz", "Rajesh Koothrappali"],
+        answer: 0,
+        anecdote: "Sheldon Cooper, sans hésiter."
+      },
+      {
+        question: "Quel film sur les rêves est ma recommandation n°1 ?",
+        options: ["Inception", "Interstellar", "Shutter Island", "Matrix"],
+        answer: 0,
+        anecdote: "Inception, de Christopher Nolan. Et oui, je me demande encore si la toupie finit par tomber."
+      },
+      {
+        question: "Quel genre d'histoires me captive le plus, en livre comme en film ?",
+        options: ["Le thriller", "La fantasy épique", "La science-fiction dystopique", "La romance contemporaine"],
+        answer: 0,
+        anecdote: "Le thriller : le suspense, la psychologie des personnages et les retournements de situation."
+      },
+      {
+        question: "Quelle bande dessinée d'humour est ma lecture de prédilection ?",
+        options: ["Game Over", "Les Tuniques Bleues", "Lucky Luke", "Spirou et Fantasio"],
+        answer: 0,
+        anecdote: "Game Over, de Midam : un Petit Barbare qui trouve toujours une façon absurde de perdre."
+      },
+      {
+        question: "Quel héros de jeu vidéo traverse les générations dans mon cœur ?",
+        options: ["Mario", "Sonic", "Link", "Pac-Man"],
+        answer: 0,
+        anecdote: "Mario, la salopette bleue et la casquette rouge."
+      },
+      {
+        question: "Quel est, pour moi, le bon plat de macaronis ?",
+        options: ["Une sauce tomate fraîche maison", "Une béchamel gratinée au four", "Du jambon et de la crème", "Beaucoup de fromage fondu"],
+        answer: 0,
+        anecdote: "La sauce tomate fraîche maison. Pas de grand secret, juste un plat réconfortant."
+      },
+      {
+        question: "Devant quel dessert fait maison ai-je du mal à résister ?",
+        options: ["Le tiramisu", "La panna cotta", "Les cannoli siciliens", "Les profiteroles"],
+        answer: 0,
+        anecdote: "Le tiramisu : le café serré et le mascarpone, aucune négociation possible."
+      },
+      {
+        question: "Quelle est ma boisson de tous les jours ?",
+        options: ["Un expresso bien serré", "Un café allongé", "Un cappuccino mousseux", "Un thé noir"],
+        answer: 0,
+        anecdote: "L'expresso : court, noir et bien serré."
+      },
+      {
+        question: "Quel légume ne trouvera jamais sa place dans mon assiette ?",
+        options: ["Les brocolis", "Les choux de Bruxelles", "Les épinards", "Le chou-fleur"],
+        answer: 0,
+        anecdote: "Les brocolis, même cachés dans un gratin."
+      },
+      {
+        question: "Quel sport pratiquais-je enfant, et que mes enfants pratiquent à leur tour ?",
+        options: ["Le basket", "Le football", "Le volley", "Le handball"],
+        answer: 0,
+        anecdote: "Le basket. Je jouais ailier ou meneur de jeu, et ce sont maintenant mes enfants qui ont repris le flambeau."
+      },
+      {
+        question: "Côté musique, qu'est-ce qui tourne souvent dans mes playlists ?",
+        options: ["TeddyBear et Stromae", "Indochine et Téléphone", "Zaz et Louane", "Jul et Aya Nakamura"],
+        answer: 0,
+        anecdote: "TeddyBear et Stromae, entre autres, reviennent souvent dans mes playlists."
+      },
+      {
+        question: "De quelle région d'Italie viennent mes origines ?",
+        options: ["La Sicile", "La Sardaigne", "Les Pouilles", "La Calabre"],
+        answer: 0,
+        anecdote: "La Sicile, mes racines : le soleil, la mer, et la granita servie avec sa brioche."
+      },
+
+      /* MÉTIER ET PASSIONS */
+      {
+        question: "Depuis combien de temps est-ce que je donne des formations ?",
+        options: ["Moins de 6 mois", "Environ 2 ans", "Environ 8 ans", "Plus de 15 ans"],
+        answer: 1,
+        anecdote: "Environ 2 ans. Je forme les collègues à l'IA et aux outils numériques."
+      },
+      {
+        question: "Qu'est-ce que je fais pour me détendre, en dehors du travail ?",
+        options: ["Je répare des appareils électroniques", "Je restaure de vieux meubles", "Je jardine au potager", "Je fais du modélisme"],
+        answer: 0,
+        anecdote: "Je répare de l'électronique. Ouvrir un appareil en panne, comprendre ce qui ne va pas, c'est mon jeu préféré."
+      },
+      {
+        question: "Quel outil j'utilise dès qu'il y a des formules de maths dans un document ?",
+        options: ["LaTeX", "L'éditeur d'équations de Word", "Des captures d'écran de formules", "Un tableur"],
+        answer: 0,
+        anecdote: "LaTeX, toujours. Les formules y sont écrites en texte clair, donc faciles à relire et à vérifier."
+      },
+      {
+        question: "Qu'est-ce que j'appelle le « vibe coding » ?",
+        options: ["Créer une appli sur mesure en la décrivant à une IA", "Programmer en écoutant de la musique", "Apprendre le code avec des vidéos", "Copier du code trouvé sur des forums"],
+        answer: 0,
+        anecdote: "Créer une appli sur mesure avec l'aide d'une IA. Ce quiz en est justement un exemple."
+      },
+      {
+        question: "Qu'est-ce que je constate souvent avec les Chromebooks des élèves ?",
+        options: ["Ils servent surtout de substitut au papier", "Ils restent oubliés au fond du cartable", "Ils servent surtout à jouer", "Ils sont peu utilisés à cause du Wi-Fi"],
+        answer: 0,
+        anecdote: "Ils remplacent souvent le papier, ni plus ni moins. Mon but : guider vers de meilleurs usages."
+      },
+      {
+        question: "Quel est mon rôle à l'Athénée Provincial Jean d'Avesnes ?",
+        options: ["Référent numérique", "Éducateur", "Directeur adjoint", "Bibliothécaire"],
+        answer: 0,
+        anecdote: "Référent numérique : j'accompagne l'équipe sur le numérique et je forme le personnel."
+      }
+    ];
+    /* ÉTAT DU JEU */
+    const TOTAL = 5;
+    const THRESHOLD = 3; // bonnes réponses nécessaires pour dévoiler la photo nette
+    let selectedTheme = 'theme-80s';
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let typingTimer = null;
+
+    /* GESTION DU CHOIX DU THÈME AVANT LE DÉBUT DU JEU */
+    function preselectTheme(themeClass, labelText, btnElement) {
+      selectedTheme = themeClass;
+      document.body.className = themeClass;
+      document.getElementById('current-mode-label').textContent = `Mode : ${labelText}`;
+
+      document.querySelectorAll('.mode-card-btn').forEach(b => { b.classList.remove('selected'); b.setAttribute('aria-pressed', 'false'); });
+      if (btnElement) {
+        btnElement.classList.add('selected');
+        btnElement.setAttribute('aria-pressed', 'true');
+      }
+
+      const cursor = document.getElementById('cursor');
+      if (themeClass === 'theme-80s') {
+        cursor.style.display = 'inline-block';
+      } else {
+        cursor.style.display = 'none';
+      }
+    }
+
+    function returnToIntro() {
+      if (typingTimer) clearInterval(typingTimer);
+      showScreen('screen-intro');
+    }
+
+    /* DÉMARRAGE DU JEU APRÈS CHOIX DU MODE */
+    function startGame() {
+      // 5 questions aléatoires
+      currentQuestions = shuffle(questionBank).slice(0, TOTAL).map(q => {
+        const order = shuffle(q.options.map((text, i) => ({ text, ok: i === q.answer })));
+        return { question: q.question, anecdote: q.anecdote, options: order.map(o => o.text), answer: order.findIndex(o => o.ok) };
+      });
+      currentIndex = 0;
+      score = 0;
+
+      updateScoreDisplay();
+      showScreen('screen-quiz');
+      reserveFeedback();
+      displayQuestion();
+    }
+
+    /* Mélange équitable (Fisher-Yates) */
+    function shuffle(list) {
+      const a = [...list];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    /* Réserve la place de l'anecdote la plus longue de la partie,
+       pour que le cadre ne bouge pas quand elle s'affiche. */
+    function reserveFeedback() {
+      const fb = document.getElementById('feedback-text');
+      const saved = fb.textContent;
+      fb.style.minHeight = '0';
+      let max = 0;
+      currentQuestions.forEach(q => {
+        fb.textContent = `[EXACT] ${q.anecdote}`;
+        max = Math.max(max, fb.offsetHeight);
+      });
+      fb.textContent = saved;
+      fb.style.minHeight = max + 'px';
+    }
+    window.addEventListener('resize', () => {
+      if (document.getElementById('screen-quiz').classList.contains('active')) reserveFeedback();
+    });
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function updateScoreDisplay() {
+      document.getElementById('score-display').textContent = `Score: ${score} / ${TOTAL}`;
+    }
+
+    /* MACHINE À ÉCRIRE AVEC CURSEUR BLANC QUI POUSSE LE TEXTE */
+    function displayQuestion() {
+      const q = currentQuestions[currentIndex];
+      document.getElementById('question-number').textContent = `Question ${currentIndex + 1} / ${TOTAL}`;
+      document.getElementById('progress-bar').style.width = `${(currentIndex / TOTAL) * 100}%`;
+      
+      const questionSpan = document.getElementById('question-text');
+      const cursor = document.getElementById('cursor');
+      const feedback = document.getElementById('feedback-text');
+      feedback.textContent = '';
+      feedback.style.color = '';
+      document.getElementById('next-btn').style.visibility = 'hidden';
+
+      const optionsContainer = document.getElementById('options-container');
+      optionsContainer.innerHTML = '';
+
+      q.options.forEach((optText, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        const mark = document.createElement('span');
+        mark.setAttribute('aria-hidden', 'true');
+        mark.style.cssText = 'opacity:0.75; margin-right:8px;';
+        mark.textContent = '>';
+        btn.append(mark, document.createTextNode(optText));
+        btn.onclick = () => selectAnswer(index);
+        optionsContainer.appendChild(btn);
+      });
+
+      if (typingTimer) clearInterval(typingTimer);
+      questionSpan.textContent = '';
+
+      if (document.body.classList.contains('theme-80s')) {
+        cursor.style.display = 'inline-block';
+        let charIndex = 0;
+        const textToType = q.question;
+        
+        typingTimer = setInterval(() => {
+          if (charIndex < textToType.length) {
+            questionSpan.textContent += textToType.charAt(charIndex);
+            charIndex++;
+          } else {
+            clearInterval(typingTimer);
+          }
+        }, 26);
+      } else {
+        cursor.style.display = 'none';
+        questionSpan.textContent = q.question;
+      }
+    }
+
+    function selectAnswer(chosenIndex) {
+      if (typingTimer) {
+        clearInterval(typingTimer);
+        document.getElementById('question-text').textContent = currentQuestions[currentIndex].question;
+      }
+
+      const q = currentQuestions[currentIndex];
+      const buttons = document.querySelectorAll('.option-btn');
+      buttons.forEach(b => b.disabled = true);
+      const feedback = document.getElementById('feedback-text');
+
+      if (chosenIndex === q.answer) {
+        score++;
+        buttons[chosenIndex].classList.add('correct');
+        feedback.textContent = `[EXACT] ${q.anecdote}`;
+        feedback.style.color = 'var(--ok-text)';
+      } else {
+        buttons[chosenIndex].classList.add('wrong');
+        buttons[q.answer].classList.add('correct');
+        feedback.textContent = `[NON] ${q.anecdote}`;
+        feedback.style.color = 'var(--bad-text)';
+      }
+
+      updateScoreDisplay();
+      document.getElementById('next-btn').style.visibility = 'visible';
+    }
+
+    function nextQuestion() {
+      currentIndex++;
+      if (currentIndex < TOTAL) {
+        displayQuestion();
+      } else {
+        endGame();
+      }
+    }
+    function endGame() {
+      document.getElementById('progress-bar').style.width = `100%`;
+      showScreen('screen-end');
+
+      const title = document.getElementById('final-title');
+      const text = document.getElementById('final-score-text');
+      const avatarBox = document.getElementById('avatar-container');
+
+      text.textContent = `Score final : ${score} bonnes réponses sur ${TOTAL}.`;
+
+      const intro = document.getElementById('avatar-intro');
+      const tag = document.getElementById('photo-tag');
+      const card = avatarBox.querySelector('.photo-display-card');
+      avatarBox.style.display = 'block';
+      card.classList.remove('reveal', 'locked');
+
+      if (score >= THRESHOLD) {
+        title.textContent = score === TOTAL ? "Parfait, vous me connaissez par cœur !" : "Bravo, vous me connaissez bien !";
+        intro.textContent = "Voici le visage derrière le quiz";
+        tag.textContent = "> Enchanté, je suis Angelo, votre formateur.";
+        void card.offsetWidth;
+        card.classList.add('reveal');
+      } else {
+        const missing = THRESHOLD - score;
+        title.textContent = "Presque ! On fait connaissance.";
+        intro.textContent = "Ma photo reste floue pour l'instant";
+        tag.textContent = `> Encore ${missing} bonne${missing > 1 ? 's' : ''} réponse${missing > 1 ? 's' : ''} pour la voir nette. Les questions changent à chaque partie, retentez !`;
+        card.classList.add('locked');
+      }    }
+  </script>
+</body>
+</html>

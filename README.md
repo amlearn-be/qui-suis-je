@@ -4,4 +4,4 @@ Un petit jeu de cinq questions pour faire connaissance avant une formation : mes
 
 Le jeu s'ouvre dans un navigateur et ne collecte aucune donnée : rien n'est envoyé ni enregistré.
 
-Conçu par Angelo (AMlearn), codé par l'IA.
+Conçu par Angelo, codé par l'IA.
